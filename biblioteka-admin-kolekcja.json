@@ -1,0 +1,334 @@
+{
+	"info": {
+		"_postman_id": "f2196e54-be28-4d74-b02b-f5b023b2dcc6",
+		"name": "QA Academy - admin - biblioteka",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22912641"
+	},
+	"item": [
+		{
+			"name": "Logowanie",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Should verify status code\", () => {",
+							"    pm.response.to.have.status(200)",
+							"    const respBody = pm.response.json();",
+							"    pm.collectionVariables.set('tokenAdmin', respBody.token);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\": \"admin\", \"password\": \"password\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Niepoprawne logowanie",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Should verify status code as 401 because of invalid password\", () => {",
+							"    pm.response.to.have.status(401)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"username\": \"admin\", \"password\": \"invalidpassword\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/auth/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Dodaj książkę do biblioteki",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let resBody;",
+							"",
+							"pm.test(\"Should verify status code\", () => {",
+							"    pm.response.to.have.status(200);",
+							"    resBody = pm.response.json();",
+							"    pm.collectionVariables.set('addedBook', resBody.id)",
+							"})",
+							"",
+							"pm.test(\"Should verify id\", () => {",
+							"    pm.expect(resBody.id.length).to.greaterThan(0);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n       \"author\": \"Stephen King\",\n       \"title\": \"Zielona Mila\"\n   }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/books",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Dodaj książkę do biblioteki nie będąc zalogowanym jako admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Should verify status code as 401 because of no auth\", () => {",
+							"    pm.response.to.have.status(401);",
+							"})",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n       \"author\": \"Stephen King\",\n       \"title\": \"Zielona Mila\"\n   }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/books",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Usuń książkę z biblioteki",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Should verify status code\", () => {",
+							"    pm.response.to.have.status(204)",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/books/{{addedBook}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books",
+						"{{addedBook}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Wyświetl książkę",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let resBody;",
+							"",
+							"pm.test(\"Should verify status code\", () => {",
+							"    pm.response.to.have.status(200);",
+							"    resBody = pm.response.json();",
+							"})",
+							"",
+							"pm.test(\"Should verify type of title\", () => {",
+							"    pm.expect(resBody.title).to.be.a(\"string\");",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/books/cl6vvt84l03383zbn0pzx8use",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books",
+						"cl6vvt84l03383zbn0pzx8use"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Wyświetl listę wszystkich książek",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let resBody;",
+							"",
+							"pm.test(\"Should verify status code\", () => {",
+							"    pm.response.to.have.status(200);",
+							"    resBody = pm.response.json();",
+							"})",
+							"",
+							"pm.test(\"Should verify number of books\", () => {",
+							"    pm.expect(resBody.total).to.be.greaterThan(0);",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/books",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{tokenAdmin}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://0.0.0.0:8080",
+			"type": "string"
+		},
+		{
+			"key": "tokenAdmin",
+			"value": ""
+		},
+		{
+			"key": "addedBook",
+			"value": ""
+		}
+	]
+}
